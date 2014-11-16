@@ -370,7 +370,7 @@ class OneLogin_Saml2_Settings(object):
             want_assert_enc = 'wantAssertionsEncrypted' in security.keys() and security['wantAssertionsEncrypted']
             want_nameid_enc = 'wantNameIdEncrypted' in security.keys() and security['wantNameIdEncrypted']
 
-            if not self.check_sp_certs():
+            if not self.check_sp_certs(sp):
                 if authn_sign or logout_req_sign or logout_res_sign or \
                    want_assert_enc or want_nameid_enc:
                     errors.append('sp_cert_not_found_and_required')
@@ -418,28 +418,29 @@ class OneLogin_Saml2_Settings(object):
 
         return errors
 
-    def check_sp_certs(self):
+    def check_sp_certs(self, sp=None):
         """
         Checks if the x509 certs of the SP exists and are valid.
 
         :returns: If the x509 certs of the SP exists and are valid
         :rtype: boolean
         """
-        key = self.get_sp_key()
-        cert = self.get_sp_cert()
+        key = self.get_sp_key(sp)
+        cert = self.get_sp_cert(sp)
         return key is not None and cert is not None
 
-    def get_sp_key(self):
+    def get_sp_key(self, sp=None):
         """
         Returns the x509 private key of the SP.
 
         :returns: SP private key
         :rtype: string
         """
+        sp = sp or self.__sp
         key = None
 
-        if 'privateKey' in self.__sp.keys() and self.__sp['privateKey']:
-            key = self.__sp['privateKey']
+        if 'privateKey' in sp.keys() and sp['privateKey']:
+            key = sp['privateKey']
         else:
             key_file_name = self.__paths['cert'] + 'sp.key'
 
@@ -449,17 +450,18 @@ class OneLogin_Saml2_Settings(object):
                 f_key.close()
         return key
 
-    def get_sp_cert(self):
+    def get_sp_cert(self, sp=None):
         """
         Returns the x509 public cert of the SP.
 
         :returns: SP public cert
         :rtype: string
         """
+        sp = sp or self.__sp
         cert = None
 
-        if 'x509cert' in self.__sp.keys() and self.__sp['x509cert']:
-            cert = self.__sp['x509cert']
+        if 'x509cert' in sp.keys() and sp['x509cert']:
+            cert = sp['x509cert']
         else:
             cert_file_name = self.__paths['cert'] + 'sp.crt'
             if exists(cert_file_name):
