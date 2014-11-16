@@ -546,9 +546,24 @@ class OneLogin_Saml2_Settings(object):
 
         # Sign metadata
         if 'signMetadata' in self.__security and self.__security['signMetadata'] is not False:
+            key_metadata = None
+            cert_metadata = None
+            
             if self.__security['signMetadata'] is True:
-                key_file_name = 'sp.key'
-                cert_file_name = 'sp.crt'
+                key_metadata = self.get_sp_key()
+                cert_metadata = cert
+                
+                if not key_metadata:
+                    raise OneLogin_Saml2_Error(
+                        'Faield to get private key',
+                        OneLogin_Saml2_Error.PRIVATE_KEY_FILE_NOT_FOUND
+                    )
+
+                if not cert_metadata:
+                    raise OneLogin_Saml2_Error(
+                        'Failed to get public certificate',
+                        OneLogin_Saml2_Error.PUBLIC_CERT_FILE_NOT_FOUND
+                    )
             else:
                 if ('keyFileName' not in self.__security['signMetadata'] or
                         'certFileName' not in self.__security['signMetadata']):
@@ -558,30 +573,30 @@ class OneLogin_Saml2_Settings(object):
                     )
                 key_file_name = self.__security['signMetadata']['keyFileName']
                 cert_file_name = self.__security['signMetadata']['certFileName']
-            key_metadata_file = self.__paths['cert'] + key_file_name
-            cert_metadata_file = self.__paths['cert'] + cert_file_name
+                key_metadata_file = self.__paths['cert'] + key_file_name
+                cert_metadata_file = self.__paths['cert'] + cert_file_name
 
-            if not exists(key_metadata_file):
-                raise OneLogin_Saml2_Error(
-                    'Private key file not found: %s',
-                    OneLogin_Saml2_Error.PRIVATE_KEY_FILE_NOT_FOUND,
-                    key_metadata_file
-                )
+                if not exists(key_metadata_file):
+                    raise OneLogin_Saml2_Error(
+                        'Private key file not found: %s',
+                        OneLogin_Saml2_Error.PRIVATE_KEY_FILE_NOT_FOUND,
+                        key_metadata_file
+                    )
 
-            if not exists(cert_metadata_file):
-                raise OneLogin_Saml2_Error(
-                    'Public cert file not found: %s',
-                    OneLogin_Saml2_Error.PUBLIC_CERT_FILE_NOT_FOUND,
-                    cert_metadata_file
-                )
+                if not exists(cert_metadata_file):
+                    raise OneLogin_Saml2_Error(
+                        'Public cert file not found: %s',
+                        OneLogin_Saml2_Error.PUBLIC_CERT_FILE_NOT_FOUND,
+                        cert_metadata_file
+                    )
 
-            f_metadata_key = open(key_metadata_file, 'r')
-            key_metadata = f_metadata_key.read()
-            f_metadata_key.close()
+                f_metadata_key = open(key_metadata_file, 'r')
+                key_metadata = f_metadata_key.read()
+                f_metadata_key.close()
 
-            f_metadata_cert = open(cert_metadata_file, 'r')
-            cert_metadata = f_metadata_cert.read()
-            f_metadata_cert.close()
+                f_metadata_cert = open(cert_metadata_file, 'r')
+                cert_metadata = f_metadata_cert.read()
+                f_metadata_cert.close()
 
             metadata = OneLogin_Saml2_Metadata.sign_metadata(metadata, key_metadata, cert_metadata)
 
