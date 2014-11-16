@@ -542,7 +542,7 @@ class OneLogin_Saml2_Settings(object):
             self.get_contacts(), self.get_organization()
         )
         cert = self.get_sp_cert()
-        metadata = OneLogin_Saml2_Metadata.add_x509_key_descriptors(metadata, cert)
+        metadata = OneLogin_Saml2_Metadata.add_x509_key_descriptors(metadata, cert, for_encryption=False)
 
         # Sign metadata
         if 'signMetadata' in self.__security and self.__security['signMetadata'] is not False:
