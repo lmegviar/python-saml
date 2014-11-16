@@ -170,7 +170,7 @@ class OneLogin_Saml2_Metadata(object):
         return OneLogin_Saml2_Utils.add_sign(metadata, key, cert)
 
     @staticmethod
-    def add_x509_key_descriptors(metadata, cert=None):
+    def add_x509_key_descriptors(metadata, cert=None, for_signing=True, for_encryption=True):
         """
         Adds the x509 descriptors (sign/encriptation) to the metadata
         The same cert will be used for sign/encrypt
@@ -210,14 +210,15 @@ class OneLogin_Saml2_Metadata(object):
         sp_sso_descriptor = xml.getElementsByTagName('md:SPSSODescriptor')[0]
         sp_sso_descriptor.insertBefore(key_descriptor.cloneNode(True), sp_sso_descriptor.firstChild)
         sp_sso_descriptor.insertBefore(key_descriptor.cloneNode(True), sp_sso_descriptor.firstChild)
+        
+        if for_signing:
+            signing = xml.getElementsByTagName('md:KeyDescriptor')[0]
+            signing.setAttribute('use', 'signing')
+            signing.appendChild(key_info)
 
-        signing = xml.getElementsByTagName('md:KeyDescriptor')[0]
-        signing.setAttribute('use', 'signing')
-
-        encryption = xml.getElementsByTagName('md:KeyDescriptor')[1]
-        encryption.setAttribute('use', 'encryption')
-
-        signing.appendChild(key_info)
-        encryption.appendChild(key_info.cloneNode(True))
+        if for_encryption:
+            encryption = xml.getElementsByTagName('md:KeyDescriptor')[1]
+            encryption.setAttribute('use', 'encryption')
+            encryption.appendChild(key_info.cloneNode(True))
 
         return xml.toxml()
