@@ -188,6 +188,35 @@ class OneLogin_Saml2_Utils(object):
         return private_key
 
     @staticmethod
+    def validate_redirect_data(url, parameters={}, request_data={}):
+        """
+        Validates the url and parameters for a redirect or post
+
+        :param url: The target url
+        :type: string
+
+        :param parameters: Extra parameters to be passed as part of the url
+        :type: dict
+
+        :returns: Absolute url
+        :rtype: string
+        """
+        assert isinstance(url, basestring)
+        assert isinstance(parameters, dict)
+
+        if url.startswith('/'):
+            url = '%s%s' % (OneLogin_Saml2_Utils.get_self_url_host(request_data), url)
+
+        # Verify that the URL is to a http or https site.
+        if re.search('^https?://', url) is None:
+            raise OneLogin_Saml2_Error(
+                'Redirect to invalid URL: ' + url,
+                OneLogin_Saml2_Error.REDIRECT_INVALID_URL
+            )
+
+        return url
+
+    @staticmethod
     def redirect(url, parameters={}, request_data={}):
         """
         Executes a redirection to the provided url (or return the target url).
@@ -204,18 +233,7 @@ class OneLogin_Saml2_Utils(object):
         :returns: Url
         :rtype: string
         """
-        assert isinstance(url, basestring)
-        assert isinstance(parameters, dict)
-
-        if url.startswith('/'):
-            url = '%s%s' % (OneLogin_Saml2_Utils.get_self_url_host(request_data), url)
-
-        # Verify that the URL is to a http or https site.
-        if re.search('^https?://', url) is None:
-            raise OneLogin_Saml2_Error(
-                'Redirect to invalid URL: ' + url,
-                OneLogin_Saml2_Error.REDIRECT_INVALID_URL
-            )
+        url = OneLogin_Saml2_Utils.validate_redirect_data(url, parameters, request_data)
 
         # Add encoded parameters
         if url.find('?') < 0:
@@ -241,6 +259,48 @@ class OneLogin_Saml2_Utils(object):
                 param_prefix = '&'
 
         return url
+
+    @staticmethod
+    def make_post_form(url, parameters={}, request_data={}):
+        """
+        Generates an html form which will post the parameters to the provided url.
+
+        :param url: The target url
+        :type: string
+
+        :param parameters: Extra parameters to be sent in the form
+        :type: dict
+
+        :param request_data: The request as a dict
+        :type: dict
+
+        :returns: html string
+        :rtype: string
+        """
+        url = OneLogin_Saml2_Utils.validate_redirect_data(url, parameters, request_data)
+
+        inputs = ""
+        for key, value in parameters.items():
+            inputs += """<input type="hidden" name="{}" value="{}">""".format(key, value)
+        
+        html = """<! doctype html>
+<html>
+<head>
+<title>Authentication Request</title>
+</head>
+<body onload="document.forms[0].submit()">
+<noscript>
+<p><strong>Note:</strong> Since your browser does not support JavaScript, you must press the button below once to proceed.</p>
+</noscript>
+<form method="post" action="{}">
+{}
+<noscript><input type="submit" value="Submit" /></noscript>
+</form>
+<br>
+</body>
+</html>""".format(url, inputs)
+
+        return html
 
     @staticmethod
     def get_self_url_host(request_data):
