@@ -88,14 +88,18 @@ class OneLogin_Saml2_Authn_Request(object):
 
         self.__authn_request = request
 
-    def get_request(self):
+    def get_request(self, deflate=True):
         """
         Returns unsigned AuthnRequest.
         :return: Unsigned AuthnRequest
         :rtype: str object
         """
-        deflated_request = compress(self.__authn_request)[2:-4]
-        return b64encode(deflated_request)
+        request = self.__authn_request
+        if deflate:
+            deflated_request = compress(request)[2:-4]
+            return b64encode(deflated_request)
+        else:
+            return b64encode(request)
 
     def get_id(self):
         """
