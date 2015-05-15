@@ -72,9 +72,6 @@ class OneLogin_Saml2_Authn_Request(object):
     <samlp:NameIDPolicy
         Format="%(name_id_policy)s"
         AllowCreate="true" />
-    <samlp:RequestedAuthnContext Comparison="exact">
-        <saml:AuthnContextClassRef>urn:oasis:names:tc:SAML:2.0:ac:classes:PasswordProtectedTransport</saml:AuthnContextClassRef>
-    </samlp:RequestedAuthnContext>
 </samlp:AuthnRequest>""" % \
             {
                 'id': uid,
