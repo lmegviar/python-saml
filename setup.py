@@ -32,7 +32,7 @@ setup(
     },
     test_suite='tests',
     install_requires=[
-        'M2Crypto==0.22.3',
+        'M2Crypto==0.29',
         'dm.xmlsec.binding==1.3.1',
         'isodate==0.5.0',
         'defusedxml==0.4.1',
