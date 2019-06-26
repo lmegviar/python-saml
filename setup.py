@@ -31,9 +31,9 @@ setup(
         '': 'src',
     },
     test_suite='tests',
+    dependency_links=['http://github.com/lmegviar/dm.xmlsec.binding/tarball/master#egg=dm.xmlsec.binding'],
     install_requires=[
         'M2Crypto==0.29',
-        'git+https://github.com/lmegviar/dm.xmlsec.binding.git#egg=dm.xmlsec.binding',
         'isodate==0.5.0',
         'defusedxml==0.4.1',
     ],
