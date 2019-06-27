@@ -35,7 +35,7 @@ setup(
         'M2Crypto==0.29',
         'isodate==0.5.0',
         'defusedxml==0.4.1',
-        'dm.xmlsec.binding @ git+ssh://git@github.com/lmegviar/dm.xmlsec.binding@2c53cd39c699ae10328edac1ea1fc4958e67cf29#egg=dm.xmlsec.binding'
+        'dm.xmlsec.binding @ git+ssh://git@github.com/lmegviar/dm.xmlsec.binding.git#egg=dm.xmlsec.binding'
     ],
     extras_require={
         'test': (
